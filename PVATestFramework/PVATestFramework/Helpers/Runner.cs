@@ -209,6 +209,16 @@ namespace PVATestFramework.Console
 							activityList = new List<Models.Activities.Activity>();
                             continue;
                         }
+                        else if (line.Trim().Equals("<CONVERSATION_START>", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            activity = new Models.Activities.Activity
+                            {
+                                Type = Helpers.ActivityTypes.Event,
+                                Name = "startConversation",
+                                From = new From(string.Empty, 1),
+                                Timestamp = ToUnixTimeSeconds(DateTime.UtcNow)
+                            };
+                        }
                         else if (line.StartsWith("user:"))
 						{
                             var userReg = new Regex(Regex.Escape("user:"));
