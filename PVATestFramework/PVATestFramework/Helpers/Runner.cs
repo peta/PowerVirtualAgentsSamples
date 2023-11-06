@@ -359,7 +359,13 @@ namespace PVATestFramework.Console
                                 userUtterance = sendActivity.Text;
                                 if (verbose)
                                 {
-                                    logger.Information($"User sends: {sendActivity.Text}");
+                                    var descr = sendActivity.Type switch
+                                    {
+                                        ActivityTypes.Message => activity.Text,
+                                        ActivityTypes.Event => activity.Name,
+                                        _ => JsonConvert.SerializeObject(sendActivity)
+                                    };
+                                    logger.Information($"User sends {sendActivity.Type}: {descr}");
                                 }
 
                                 await directLineClient.SendActivityAsync(sendActivity, cancellationToken).ConfigureAwait(false);
@@ -385,7 +391,13 @@ namespace PVATestFramework.Console
 
                                     if (verbose)
                                     {
-                                        logger.Information($"Bot sends: {receivedActivity.Text}");
+                                        var descr = receivedActivity.Type switch
+                                        {
+                                            ActivityTypes.Message => receivedActivity.Text,
+                                            ActivityTypes.Event => receivedActivity.Name,
+                                            _ => JsonConvert.SerializeObject(receivedActivity)
+                                        };
+                                        logger.Information($"Bot sends {receivedActivity.Type}: {descr}");
                                     }
                                     if (receivedActivity.SuggestedActions != null)
                                     {
@@ -406,7 +418,13 @@ namespace PVATestFramework.Console
 
                                     if (verbose)
                                     {
-                                        logger.Information($"Bot sends: {receivedActivity.Text}");
+                                        var descr = receivedActivity.Type switch
+                                        {
+                                            ActivityTypes.Message => receivedActivity.Text,
+                                            ActivityTypes.Event => receivedActivity.Name,
+                                            _ => JsonConvert.SerializeObject(receivedActivity)
+                                        };
+                                        logger.Information($"Bot sends {receivedActivity.Type}: {descr}");
                                     }
                                 }
 
