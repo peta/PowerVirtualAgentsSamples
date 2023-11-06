@@ -7,6 +7,7 @@ namespace PVATestFramework.Console.Helpers
     {
         public const string Message = "message";
         public const string Trace = "trace";
+        public const string Event = "event";
     }
 
     public static class RoleTypes
