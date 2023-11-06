@@ -352,7 +352,8 @@ namespace PVATestFramework.Console
                                 var sendActivity = new Activity
                                 {
                                     Type = activity.Type,
-                                    Text = activity.Text
+                                    Text = activity.Text,
+                                    Name = activity.Name,
                                 };
 
                                 userUtterance = sendActivity.Text;
