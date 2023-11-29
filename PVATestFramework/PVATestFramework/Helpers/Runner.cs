@@ -222,7 +222,7 @@ namespace PVATestFramework.Console
                         else if (line.StartsWith("user:"))
 						{
                             var userReg = new Regex(Regex.Escape("user:"));
-                            var userText = userReg.Replace(line, string.Empty, 1).Trim();
+                            var userText = Regex.Unescape(userReg.Replace(line, string.Empty, 1).Trim());
                             if (string.IsNullOrEmpty(userText))
                             {
                                 throw new ArgumentException("The user message is null or empty.");
