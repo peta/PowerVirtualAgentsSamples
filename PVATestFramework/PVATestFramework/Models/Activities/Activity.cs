@@ -35,6 +35,7 @@ namespace PVATestFramework.Console.Models.Activities
         public string ReplyToId { get; set; }
         public List<object> SuggestedActions { get; set; }
         public int LineNumber { get; set; }
+        public string Name { get; set; }
     }
 
     public static class ActivityExtension
