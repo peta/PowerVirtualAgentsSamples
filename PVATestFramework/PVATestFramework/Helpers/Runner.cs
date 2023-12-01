@@ -195,7 +195,7 @@ namespace PVATestFramework.Console
 				using (StreamReader sr = new StreamReader(path))
 				{
                     fileHandler.DeleteFile(filepath);
-
+                    
 					while (null != (line = sr.ReadLine()))
 					{
                         var activity = new Models.Activities.Activity();
@@ -222,7 +222,7 @@ namespace PVATestFramework.Console
                         else if (line.StartsWith("user:"))
 						{
                             var userReg = new Regex(Regex.Escape("user:"));
-                            var userText = userReg.Replace(line, string.Empty, 1).Trim();
+                            var userText = Regex.Unescape(userReg.Replace(line, string.Empty, 1).Trim());
                             if (string.IsNullOrEmpty(userText))
                             {
                                 throw new ArgumentException("The user message is null or empty.");
@@ -349,12 +349,7 @@ namespace PVATestFramework.Console
                         switch (activity.From.Role)
                         {
                             case RoleTypes.User:
-                                var sendActivity = new Activity
-                                {
-                                    Type = activity.Type,
-                                    Text = activity.Text,
-                                    Name = activity.Name,
-                                };
+                                var sendActivity = activity.ToBotFrameworkActivity();
 
                                 userUtterance = sendActivity.Text;
                                 if (verbose)
@@ -365,6 +360,8 @@ namespace PVATestFramework.Console
                                         ActivityTypes.Event => activity.Name,
                                         _ => JsonConvert.SerializeObject(sendActivity)
                                     };
+                                    if (sendActivity.Attachments?.Any() ?? false)
+                                        descr += $" (including {sendActivity.Attachments.Count} attachments)";
                                     logger.Information($"User sends {sendActivity.Type}: {descr}");
                                 }
 
@@ -393,10 +390,12 @@ namespace PVATestFramework.Console
                                     {
                                         var descr = receivedActivity.Type switch
                                         {
-                                            ActivityTypes.Message => receivedActivity.Text,
+                                            ActivityTypes.Message => activity.Text,
                                             ActivityTypes.Event => receivedActivity.Name,
                                             _ => JsonConvert.SerializeObject(receivedActivity)
                                         };
+                                        if (receivedActivity.Attachments?.Any() ?? false)
+                                            descr += $" (including {receivedActivity.Attachments.Count} attachments)";
                                         logger.Information($"Bot sends {receivedActivity.Type}: {descr}");
                                     }
                                     if (receivedActivity.SuggestedActions != null)
@@ -420,10 +419,12 @@ namespace PVATestFramework.Console
                                     {
                                         var descr = receivedActivity.Type switch
                                         {
-                                            ActivityTypes.Message => receivedActivity.Text,
+                                            ActivityTypes.Message => activity.Text,
                                             ActivityTypes.Event => receivedActivity.Name,
                                             _ => JsonConvert.SerializeObject(receivedActivity)
                                         };
+                                        if (receivedActivity.Attachments?.Any() ?? false)
+                                            descr += $" (including {receivedActivity.Attachments.Count} attachments)";
                                         logger.Information($"Bot sends {receivedActivity.Type}: {descr}");
                                     }
                                 }
@@ -650,8 +651,10 @@ namespace PVATestFramework.Console
             else if (expectedActivity.Attachments != null && expectedActivity.Attachments.Count == receivedActivity.Attachments.Count)
             {
                 // This is an adaptive card, so the structure comparison will be executed
-                var expectedAttachments = expectedActivity.Attachments.Select(a => JsonConvert.SerializeObject(a.Content)).ToList();
-                var receivedAttachments = receivedActivity.Attachments.Select(a => JsonConvert.SerializeObject(a.Content)).ToList();
+                // Currently the two objects being compared derived from different structural types --> custom coded type <-> Ms Botframework type 
+                // So first we need to equalize the types
+                var expectedAttachments = expectedActivity.Attachments.Select(a => AdaptiveCard.CreateFromAttachment(a)).ToList();
+                var receivedAttachments = receivedActivity.Attachments.Select(a => AdaptiveCard.CreateFromBotFrameWorkAttachment(a)).ToList();
                 var settings = new AdaptiveCardTranslatorSettings();
 
                 for (int i = 0; i < expectedActivity.Attachments.Count; i++)

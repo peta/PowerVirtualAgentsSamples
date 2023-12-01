@@ -5,6 +5,7 @@ using PVATestFramework.Console.Helpers.Extensions;
 using Microsoft.Bot.Connector.DirectLine;
 using Newtonsoft.Json.Linq;
 using static PVATestFramework.Console.Helpers.AdaptiveCard;
+using Newtonsoft.Json;
 
 namespace PVATestFramework.Console.Helpers
 {
@@ -58,6 +59,36 @@ namespace PVATestFramework.Console.Helpers
             public const string Type = "type";
             public const string Value = "value";
             public const string URL = "url";
+        }
+
+        /// <summary>
+        /// Create a new Adaptive Card Attachment object based on Testframework domain model based on Attachment object received from MS Botframework
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static PVATestFramework.Console.Models.Activities.Attachment CreateFromBotFrameWorkAttachment(this Microsoft.Bot.Connector.DirectLine.Attachment source)
+        {
+            var acContentType = "application/vnd.microsoft.card.adaptive";
+            if (source.ContentType != acContentType)
+            {
+                throw new ArgumentException($"Passed attachment object has unsupported content type. Expected: {acContentType}, Received: {source.ContentType}",
+                    nameof(source));
+            }
+
+            return CreateFromAttachment((object)source);
+        }
+
+        /// <summary>
+        /// Create a new Adaptive Card Attachment object by cloning a received object (if compatible)
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        /// <exception cref="JsonException"></exception>
+        public static PVATestFramework.Console.Models.Activities.Attachment CreateFromAttachment(object source)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            return JsonConvert.DeserializeObject<PVATestFramework.Console.Models.Activities.Attachment>(JsonConvert.SerializeObject(source, Formatting.None));
         }
 
         public static string GetCardWithoutValues(

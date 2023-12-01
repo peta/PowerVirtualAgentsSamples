@@ -1,3 +1,4 @@
+<EOC>
 user: buy items
 bot: I am happy to help you place your order.
 <EOC>
@@ -6,3 +7,6 @@ bot: I am happy to help you place your order.
 <EOC>
 user: buy product
 bot: I am happy to help you place your order.
+<EOC>
+user: This\nis a message\nwith line breaks
+bot: This \nis a multiline\n bot answer
