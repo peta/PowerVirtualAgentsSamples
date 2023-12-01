@@ -64,6 +64,12 @@
     <None Update="Files\Fail\multiple.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Files\Hel\test-submitContactForm - Copy.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\Hel\test-submitContactForm.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Files\Pass\adaptive_card.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

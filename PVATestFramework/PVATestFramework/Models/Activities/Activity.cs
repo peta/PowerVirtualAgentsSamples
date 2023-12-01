@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace PVATestFramework.Console.Models.Activities
 {
@@ -19,9 +22,10 @@ namespace PVATestFramework.Console.Models.Activities
             list_of_conversations = new List<ActivityList>();
         }
     }
-
+    
     public class Activity
     {
+        
         public string ValueType { get; set; }
         public string Id { get; set; }
         public string Type { get; set; }
@@ -40,9 +44,35 @@ namespace PVATestFramework.Console.Models.Activities
 
     public static class ActivityExtension
     {
+        
+
         public static bool IsMessageActivityWithText(this Activity activity)
         {
             return activity.Type == "message" && !string.IsNullOrWhiteSpace(activity.Text);
+        }
+
+        public static Microsoft.Bot.Connector.DirectLine.Activity ToBotFrameworkActivity(this Activity activity)
+        {
+            var converted = new Microsoft.Bot.Connector.DirectLine.Activity
+            {
+                Type = activity.Type,
+                Text = activity.Text,
+                Name = activity.Name,
+                Value = activity.Value
+            };
+
+            try
+            {
+                if (activity.Attachments?.Any() ?? false)
+                    converted.Attachments = activity.Attachments.Select(x => 
+                        JsonConvert.DeserializeObject<Microsoft.Bot.Connector.DirectLine.Attachment>(JsonConvert.SerializeObject(x, Formatting.None))).ToList();
+            }
+            catch (Exception exc)
+            {
+                throw new Exception("Failed to convert custom activity attachment model to Bot Framework variant", exc);
+            }
+            
+            return converted;
         }
     }
 
@@ -62,6 +92,9 @@ namespace PVATestFramework.Console.Models.Activities
 
         [JsonProperty("title")]
         public string Title { get; set; }
+
+        [JsonProperty("tooltip", NullValueHandling = NullValueHandling.Ignore)]
+        public string Tooltip { get; set; }
 
         [JsonProperty("style")]
         public string Style { get; set; }
@@ -92,6 +125,31 @@ namespace PVATestFramework.Console.Models.Activities
 
         [JsonProperty("items", NullValueHandling = NullValueHandling.Ignore)]
         public List<Item>? Items { get; set; }
+
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        public string? Id { get; set; }
+
+        [JsonProperty("title", NullValueHandling = NullValueHandling.Ignore)]
+        public string? Title { get; set; }
+
+        [JsonProperty("valueOn", NullValueHandling = NullValueHandling.Ignore)]
+        public string? ValueOn { get; set; }
+
+        [JsonProperty("valueOff", NullValueHandling = NullValueHandling.Ignore)]
+        public string? ValueOff { get; set; }
+
+        [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
+        public string? Value { get; set; }
+
+        [JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
+        public string? Label { get; set; }
+
+        [JsonProperty("spacing", NullValueHandling = NullValueHandling.Ignore)]
+        public string? Spacing { get; set; }
+
+        [JsonProperty("fontType", NullValueHandling = NullValueHandling.Ignore)]
+        public string? FontType { get; set; }
+
     }
 
     public class Column
@@ -114,6 +172,9 @@ namespace PVATestFramework.Console.Models.Activities
         [JsonProperty("body")]
         public List<Body> Body { get; set; }
 
+        [JsonProperty("actions", NullValueHandling = NullValueHandling.Ignore)]
+        public List<Action>? Actions { get; set; }
+
         [JsonProperty("$schema")]
         public string Schema { get; set; }
 
@@ -128,6 +189,9 @@ namespace PVATestFramework.Console.Models.Activities
 
         [JsonProperty("action")]
         public string Action { get; set; }
+
+        [JsonProperty("actionSubmitId", NullValueHandling = NullValueHandling.Ignore)]
+        public string ActionSubmitId { get; set; }
     }
 
     public class Item
@@ -156,12 +220,26 @@ namespace PVATestFramework.Console.Models.Activities
 
     public class Value
     {
+        [JsonExtensionData]
+        public IDictionary<string, object> ExtensionData { get; set; } = new Dictionary<string, object>();
+
         [JsonProperty("triggerUtterance")]
-        public string TriggerUtterance { get; set; }
+        public string TriggerUtterance
+        {
+            get; 
+            set;
+        }
+
         [JsonProperty("normalizedTriggerUtterance")]
         public string NormalizedTriggerUtterance { get; set; }
+        
         [JsonProperty("intentCandidates")]
         public List<IntentCandidate> IntentCandidates { get; set; }
+
+        public object ToObject123()
+        {
+            return JsonConvert.DeserializeObject(JsonConvert.SerializeObject(this));
+        }
     }
 
     public class IntentCandidate

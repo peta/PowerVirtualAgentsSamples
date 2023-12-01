@@ -10,6 +10,7 @@ using PVATestFramework.Console.Models.DirectLine;
 using Serilog;
 using Serilog.Core;
 using System.CommandLine;
+using System.Net;
 
 namespace PVATestFramework.Console
 {
@@ -210,6 +211,7 @@ namespace PVATestFramework.Console
 
 			getFromDVCommand.SetHandler(async (dataverseOptions, interval, value, interactive, path, verbose) =>
             {
+                //HttpClient.DefaultProxy = new WebProxy("https://ipv4.fiddler:8866", true);
                 var result = false;
                 using (var httpClient = new HttpClient())
                 {
